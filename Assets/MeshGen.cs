@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Rendering;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MeshGen : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class MeshGen : MonoBehaviour
     public Mesh mesh;
     private Vector3[] vertices;
     public int[] triangles;
-    private List<Vector3> vertexList = new List<Vector3>();
+    public List<Vector3> vertexList = new List<Vector3>();
 
 
     // Square square = new Square(Vector3.one, 1);
@@ -35,7 +36,16 @@ public class MeshGen : MonoBehaviour
 
     private void Update()
     {
-        // CreateSquareGrid();
+        // foreach (var vertex in vertexList)
+        // {
+        //     var yRand = Random.Range(-10, 10);
+        //     vertex.Set(vertex.x, yRand, vertex.z);
+        //    
+        //     print("ran");
+        // }
+        //
+        //  UpdateMesh();
+
         // Square square = new Square(Vector3.zero, scale / 2);
         // CreateShape();
 
@@ -56,20 +66,10 @@ public class MeshGen : MonoBehaviour
         // print(num);
     }
 
-    private void CreateShape()
-    {
-        triangles = new[]
-        {
-            0, 1, 2,
-            1, 3, 2,
-        };
-    }
 
-    void UpdateMesh(Square square)
+    void UpdateMesh()
     {
-        // mesh.Clear();
-        mesh.vertices = square.VertexPoints;
-        // mesh.triangles = triangles;
+        mesh.vertices = vertexList.ToArray();
     }
 
 
@@ -90,29 +90,24 @@ public class MeshGen : MonoBehaviour
 
     void CreateSquareGrid()
     {
-        var col = width ;
-        var row = height ;
+        var col = width;
+        var row = height;
         // triangles = new int[12];
         for (int x = 0; x < col; x++)
         {
             for (int y = 0; y < row; y++)
             {
+                var yRand = Mathf.PerlinNoise(x * .3f, y * .3f) * 2f;
                 var pos = new Vector3(x, 0, y);
-                Square square = new Square(pos );
+                Square square = new Square(pos, yRand);
                 vertexList.AddRange(square.VertexPoints);
-                // triangles[0] =  triangles[3] = 0;
-                // triangles[1] = 1;
-                // triangles[2] = triangles[4]=  x + 2;
-                // triangles[5] = x + 1;
-                // //
-
-                // UpdateMesh(square);
             }
         }
 
         mesh.vertices = vertexList.ToArray();
 
-        StartCoroutine(CreateTriangles());
+        CreateTriangles();
+        // StartCoroutine(CreateTriangles());
 
         // works
         // triangles[0] = 0;
@@ -153,43 +148,74 @@ public class MeshGen : MonoBehaviour
         // mesh.triangles = triangles;
     }
 
-    IEnumerator CreateTriangles()
+    // IEnumerator CreateTriangles()
+    // {
+    //     WaitForSeconds waitForSeconds = new WaitForSeconds(0.05f);
+    //     var col = width;
+    //     var row = height;
+    //     triangles = new int[width * height * 6];
+    //
+    //     // ---------
+    //     //vertex index needs to increase by 4, there's four vertices in the square
+    //     //--------
+    //     for (int y = 0, triIndex = 0, vertIndex = 0; y < row; y++)
+    //     {
+    //         for (int x = 0; x < col; x++, triIndex += 6, vertIndex += 4)
+    //         {
+    //             // triangles[triIndex] = vertIndex;
+    //             // triangles[triIndex + 1] = triangles[triIndex + 3] = vertIndex + 1;
+    //             // triangles[triIndex + 2] = triangles[triIndex + 5] = vertIndex + 2;
+    //             // triangles[triIndex + 4] = vertIndex + 3;
+    //
+    //             triangles[triIndex] = vertIndex;
+    //             triangles[triIndex + 1] = vertIndex + 1;
+    //             triangles[triIndex + 2] = vertIndex + 2;
+    //
+    //             mesh.triangles = triangles;
+    //             yield return waitForSeconds;
+    //
+    //             triangles[triIndex + 3] = vertIndex + 1;
+    //             triangles[triIndex + 4] = vertIndex + 3;
+    //             triangles[triIndex + 5] = vertIndex + 2;
+    //             // triangles[triIndex] = triangles[triIndex + 3] = vertIndex;
+    //             // triangles[triIndex + 1] = vertIndex + 1;
+    //             // triangles[triIndex + 2] = triangles[triIndex + 4] = vertIndex + 2;
+    //             // triangles[triIndex + 5] = vertIndex + 1;
+    //
+    //
+    //             mesh.triangles = triangles;
+    //             yield return waitForSeconds;
+    //         }
+    //
+    //         print(triangles.Length);
+    //
+    //         Debug.Log("next row");
+    //     }
+    //
+    //
+    //     Debug.Log("Created Triangles");
+    // }
+    void CreateTriangles()
     {
-        WaitForSeconds waitForSeconds = new WaitForSeconds(0.05f);
-        var col = width ;
-        var row = height ;
-        triangles = new int[width * height * 6]; 
+        var col = width;
+        var row = height;
+        triangles = new int[width * height * 6];
 
         // ---------
         //vertex index needs to increase by 4, there's four vertices in the square
         //--------
-        for (int y = 0 ,triIndex = 0, vertIndex = 0; y < row; y++)
+        for (int y = 0, triIndex = 0, vertIndex = 0; y < row; y++)
         {
-            for (int x = 0 ; x < col; x++, triIndex += 6, vertIndex += 4)
+            for (int x = 0; x < col; x++, triIndex += 6, vertIndex += 4)
             {
-                // triangles[triIndex] = vertIndex;
-                // triangles[triIndex + 1] = triangles[triIndex + 3] = vertIndex + 1;
-                // triangles[triIndex + 2] = triangles[triIndex + 5] = vertIndex + 2;
-                // triangles[triIndex + 4] = vertIndex + 3;
-
                 triangles[triIndex] = vertIndex;
-                triangles[triIndex + 1] = vertIndex + 1;
+                triangles[triIndex + 1] = triangles[triIndex + 3] = vertIndex + 1;
+                triangles[triIndex + 2] = triangles[triIndex + 5] = vertIndex + 2;
+                triangles[triIndex + 4] = vertIndex + 3;
+
                 triangles[triIndex + 2] = vertIndex + 2;
 
                 mesh.triangles = triangles;
-                yield return waitForSeconds;
-
-                triangles[triIndex + 3] = vertIndex + 1;
-                triangles[triIndex + 4] = vertIndex + 3;
-                triangles[triIndex + 5] = vertIndex + 2;
-                // triangles[triIndex] = triangles[triIndex + 3] = vertIndex;
-                // triangles[triIndex + 1] = vertIndex + 1;
-                // triangles[triIndex + 2] = triangles[triIndex + 4] = vertIndex + 2;
-                // triangles[triIndex + 5] = vertIndex + 1;
-
-
-                mesh.triangles = triangles;
-                yield return waitForSeconds;
             }
 
             print(triangles.Length);
@@ -220,8 +246,8 @@ public class MeshGen : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        var col = width ;
-        var row = height ;
+        var col = width;
+        var row = height;
         for (int x = 0; x < col; x++)
         {
             for (int y = 0; y < row; y++)
@@ -230,7 +256,10 @@ public class MeshGen : MonoBehaviour
                 Vector3 pos = new Vector3(x, 0, y);
                 // Vector3 size = new Vector3(scale, 0, 1);
                 //
-                Square square = new Square(pos); // cuts is in have to prevent over lapping 
+                var yRand = Mathf.PerlinNoise(x * .3f, y * .3f) * 2f;
+
+                Square square = new Square(pos , yRand); // cuts is in have to prevent over lapping 
+                Gizmos.DrawWireSphere(square.pos, 0.02f);
                 Gizmos.color = Color.black; // top left
                 Gizmos.DrawSphere(square.VertexPoints[0], .05f);
                 // Gizmos.color = Color.blue; // top right
@@ -239,6 +268,11 @@ public class MeshGen : MonoBehaviour
                 Gizmos.DrawSphere(square.VertexPoints[2], .05f);
                 // Gizmos.color = Color.red; // bottom right
                 Gizmos.DrawSphere(square.VertexPoints[3], .05f);
+
+
+                for (int i = 0; i < 4; i++)
+                {
+                }
 
                 // Gizmos.color = Color.cyan;
                 // Gizmos.DrawLine(square.VertexPoints[2], square.VertexPoints[1]);
@@ -255,16 +289,19 @@ public class MeshGen : MonoBehaviour
             }
         }
 
-        // Square square = new Square(Vector3.one, scale);
-        // Gizmos.color = Color.black; // top left
-        // Gizmos.DrawSphere(square.Veritces[0], .1f);
-        // Gizmos.color = Color.blue; // top right
-        // Gizmos.DrawSphere(square.Veritces[1], .1f);
-        // Gizmos.color = Color.green; // bottom left 
-        // Gizmos.DrawSphere(square.Veritces[2], .1f);
-        // Gizmos.color = Color.red; // bottom right
-        // Gizmos.DrawSphere(square.Veritces[3], .1f);
+        // var temp = new Vector3(1,0,1);
+        // Square square = new Square(temp, noiseScaler);
+        // Gizmos.DrawSphere(square.pos, 0.2f);
         //
+        // Gizmos.color = Color.black; // top left
+        // Gizmos.DrawSphere(square.VertexPoints[0], .1f);
+        // Gizmos.color = Color.blue; // top right
+        // Gizmos.DrawSphere(square.VertexPoints[1], .1f);
+        // Gizmos.color = Color.green; // bottom left 
+        // Gizmos.DrawSphere(square.VertexPoints[2], .1f);
+        // Gizmos.color = Color.red; // bottom right
+        // Gizmos.DrawSphere(square.VertexPoints[3], .1f);
+
         //
         // Vector3 newPos = new Vector3(square.pos.x + (2 * scale ), 0,  square.pos.z);
         // Square square2 = new Square(newPos, scale);

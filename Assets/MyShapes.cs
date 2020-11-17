@@ -11,23 +11,24 @@ public struct Vertex
     }
 }
 
+// Square is 1 x 1 
 public struct Square
 {
     public Vertex TopLeft, TopRight, BottomLeft, BottomRight;
     public Vector3[] VertexPoints;
     public Vector3 pos;
     public int[] triangles;
-    private float scale;
 
-    public Square(Vector3 position)
+
+    public Square(Vector3 position, float PerlinY, float scale = 0.5f)
     {
         pos = position;
-        scale = 0.5f;
 
-        TopLeft = new Vertex(position.x - scale, 0, position.z + scale);
-        TopRight = new Vertex(position.x + scale, 0, position.z + scale);
-        BottomLeft = new Vertex(position.x - scale, 0, position.z - scale);
-        BottomRight = new Vertex(position.x + scale, 0, position.z - scale);
+
+        TopLeft = new Vertex(position.x - scale, PerlinY, position.z + scale);
+        TopRight = new Vertex(position.x + scale, PerlinY, position.z + scale);
+        BottomLeft = new Vertex(position.x - scale, PerlinY, position.z - scale);
+        BottomRight = new Vertex(position.x + scale, PerlinY, position.z - scale);
 
         VertexPoints = new Vector3[]
         {
