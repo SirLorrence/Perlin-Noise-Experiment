@@ -36,14 +36,27 @@ public class MeshGen : MonoBehaviour
 
     private void Update()
     {
+        // CreateTriangles();
         // foreach (var vertex in vertexList)
         // {
         //     var yRand = Random.Range(-10, 10);
-        //     vertex.Set(vertex.x, yRand, vertex.z);
+        //     vertex= new Vector3(vertex.x, yRand, vertex.z);
         //    
         //     print("ran");
         // }
         //
+        for (int i = 0; i < vertexList.Count; i++)
+        {
+            var yRand = Random.Range(-1, 1);
+            var vertex = vertexList[i];
+            vertexList[i]= new Vector3(vertex.x, yRand, vertex.z);
+        }
+        mesh.Clear();
+        mesh.vertices = vertexList.ToArray();
+        CreateTriangles();;
+        mesh.RecalculateBounds();
+
+
         //  UpdateMesh();
 
         // Square square = new Square(Vector3.zero, scale / 2);
@@ -107,6 +120,7 @@ public class MeshGen : MonoBehaviour
         mesh.vertices = vertexList.ToArray();
 
         CreateTriangles();
+        mesh.RecalculateNormals();
         // StartCoroutine(CreateTriangles());
 
         // works
@@ -259,7 +273,7 @@ public class MeshGen : MonoBehaviour
                 var yRand = Mathf.PerlinNoise(x * .3f, y * .3f) * 2f;
 
                 Square square = new Square(pos , yRand); // cuts is in have to prevent over lapping 
-                Gizmos.DrawWireSphere(square.pos, 0.02f);
+                // Gizmos.DrawWireSphere(square.pos, 0.02f);
                 Gizmos.color = Color.black; // top left
                 Gizmos.DrawSphere(square.VertexPoints[0], .05f);
                 // Gizmos.color = Color.blue; // top right
