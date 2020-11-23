@@ -258,10 +258,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d097d3e0f6fcac142b255c0675196e95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 10
-  height: 10
+  width: 100
+  height: 100
   noiseScaler: 0
   mesh: {fileID: 0}
+  vertices: []
   triangles: 
   vertexList: []
 --- !u!23 &1220059025
