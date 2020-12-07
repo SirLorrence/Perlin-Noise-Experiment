@@ -21,6 +21,8 @@ public class PerlinGen : MonoBehaviour
     public GameObject GamePrefab;
     public Gradient grad;
 
+    public float freq;
+
     private void Awake()
     {
         testImage = GetComponent<MeshRenderer>();
@@ -35,6 +37,7 @@ public class PerlinGen : MonoBehaviour
 
     private void Update()
     {
+        Generate();
         if (Input.GetKeyDown(KeyCode.R)) SceneManager.LoadScene(0);
     }
 
@@ -48,7 +51,9 @@ public class PerlinGen : MonoBehaviour
         {
             for (int y = 0; y < perlinTextureY; y++)
             {
-                perlinTexture2D.SetPixel(x, y, Sample(x, y)); // write a pixel into an texture
+                // perlinTexture2D.SetPixel(x, y, Sample(x, y)); // write a pixel into an texture
+                var point = new Vector3(x, y);
+                // perlinTexture2D.SetPixel(x, y, Color.white * Noise.Value(point, freq)); // write a pixel into an texture
             }
         }
 
