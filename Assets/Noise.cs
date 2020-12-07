@@ -77,11 +77,11 @@ public static class Noise
     // }
 
 
-    public static float Perlin(Vector3 point, float frequency) // 1D -- only return the x in the point
+    public static float Perlin(Vector3 point, float freq) // 1D -- only return the x in the point
     {
         //basic one-dimensional gradient function is g(x) = x
 
-        point *= frequency;
+        point *= freq;
         int i0 = Mathf.FloorToInt(point.x);
 
         //interpolation
@@ -103,10 +103,10 @@ public static class Noise
         return Mathf.Lerp(v0, v1, t) * 2f;
     }
 
-    public static float Perlin2D(Vector3 point, float frequency) // as the name implies 
+    public static float Perlin2D(Vector3 point, float freq) // as the name implies 
     {
         // g(x, y) = ax + by
-        point *= frequency;
+        point *= freq;
         int ix0 = Mathf.FloorToInt(point.x);
         int iy0 = Mathf.FloorToInt(point.y);
 
@@ -139,23 +139,41 @@ public static class Noise
         float ty = Smooth(ty0);
 
         return Mathf.Lerp(Mathf.Lerp(v00, v10, tx), Mathf.Lerp(v01, v11, tx), ty) * Mathf.Sqrt(2f);
-        r // returns 1 or 0 
+        // r // returns 1 or 0 
     }
 
-    public static float Perlin3D(Vector3 point, float frequency) // -_- guess
-    {
-        point *= frequency;
-        int ix = Mathf.FloorToInt(point.x);
-        int iy = Mathf.FloorToInt(point.y);
-        int iz = Mathf.FloorToInt(point.z);
-        ix &= hashMask;
-        iy &= hashMask;
-        iz &= hashMask;
-        return permutation[permutation[permutation[ix] + iy] + iz] * (1f / hashMask); // returns 1 or 0 
-    }
+    // public static float Perlin3D(Vector3 point, float frequency) // -_- guess
+    // {
+    //     point *= frequency;
+    //     int ix = Mathf.FloorToInt(point.x);
+    //     int iy = Mathf.FloorToInt(point.y);
+    //     int iz = Mathf.FloorToInt(point.z);
+    //     ix &= hashMask;
+    //     iy &= hashMask;
+    //     iz &= hashMask;
+    //     return permutation[permutation[permutation[ix] + iy] + iz] * (1f / hashMask); // returns 1 or 0 
+    // }
 
     // the DOT Product function
     static float Dot(Vector2 g, float x, float y) => g.x * x + g.y * y;
 
     public static float Smooth(float t) => t * t * t * (t * (t * 6f - 15) + 10);
+
+
+    public static float Layer2D(Vector3 point, float freq, int octaves) // layers 
+    {
+        float sum = Perlin2D(point, freq);
+        float amplitude = 1f;
+        float range = 1f;
+
+        for (int o = 1; o < octaves; o++)
+        {
+            freq *= 2f;
+            amplitude *= 0.5f;
+            range += amplitude;
+            sum += Perlin2D(point, freq) * amplitude;
+        }
+
+        return sum / range;
+    }
 }

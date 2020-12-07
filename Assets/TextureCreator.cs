@@ -1,5 +1,4 @@
-﻿
-using UnityEditor.PackageManager.UI;
+﻿using UnityEditor.PackageManager.UI;
 using UnityEngine;
 
 public class TextureCreator : MonoBehaviour
@@ -7,8 +6,13 @@ public class TextureCreator : MonoBehaviour
     [Range(2, 512)] //inspector slider
     public int resolution = 256; // size of the texture
 
-    public float freq;
+    [Range(1, 10)] public int octaves = 1;
+
+
+    public float frequency;
     private Texture2D texure;
+
+    public Gradient coloring;
 
     private void OnEnable()
     {
@@ -54,9 +58,11 @@ public class TextureCreator : MonoBehaviour
             for (int x = 0; x < resolution; x++)
             {
                 var point = Vector3.Lerp(point0, point1, (x + 0.5f) * stepSize);
-                float sample = Noise.Perlin2D(point, freq);
+                float sample = Noise.Layer2D(point, frequency, octaves);
+                // float sample = Noise.Perlin2D(point, freq);
                 sample = sample * .5f + .5f;
-                texure.SetPixel(x, y, Color.white *sample);
+                texure.SetPixel(x, y, Color.white * sample);
+                // texure.SetPixel(x, y, coloring.Evaluate(sample));
             }
         }
 
