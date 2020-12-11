@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
-using UnityEngine.PlayerLoop;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class PerlinGen : MonoBehaviour
@@ -12,7 +8,8 @@ public class PerlinGen : MonoBehaviour
     public int perlinTextureY;
     public int gridSizeX;
     public int gridSizeY;
-    public bool testWithPrefab = false;
+    [Header("Test Cases")] public bool testWithPrefab = false;
+    public bool testWithMesh = false;
 
     [Header("Map Settings & Location")] public Vector2 perlinOffset;
     private Texture2D perlinTexture2D;
@@ -22,9 +19,15 @@ public class PerlinGen : MonoBehaviour
     public Gradient grad;
 
     public float freq;
+    private Vector3[] vertices;
+    private Mesh mesh;
+    public GameObject childMesh;
 
     private void Awake()
     {
+        mesh = new Mesh();
+        childMesh.GetComponent<MeshFilter>().mesh = mesh;
+
         testImage = GetComponent<MeshRenderer>();
         perlinOffset = new Vector2(Random.Range(0, 99999), Random.Range(0, 99999));
     }
@@ -33,6 +36,7 @@ public class PerlinGen : MonoBehaviour
     {
         Generate();
         if (testWithPrefab) TerrianGen();
+        if (testWithMesh) CreateVertexGrid();
     }
 
     private void Update()
@@ -51,9 +55,8 @@ public class PerlinGen : MonoBehaviour
         {
             for (int y = 0; y < perlinTextureY; y++)
             {
-                // perlinTexture2D.SetPixel(x, y, Sample(x, y)); // write a pixel into an texture
-                var point = new Vector3(x, y);
-                // perlinTexture2D.SetPixel(x, y, Color.white * Noise.Value(point, freq)); // write a pixel into an texture
+                perlinTexture2D.SetPixel(x, y, Sample(x, y)); // write a pixel into an texture
+                // perlinTexture2D.SetPixel(x, y, Color.white * Sample(x, y)); // write a pixel into an texture
             }
         }
 
@@ -101,6 +104,55 @@ public class PerlinGen : MonoBehaviour
                 .grayscale; // getting the pixel out of the texture, then get the grayscale value (0-1)
 
         return sampledNoiseFloat;
+    }
+
+
+    void CreateVertexGrid()
+    {
+        vertices = new Vector3[(gridSizeX + 1) * (gridSizeY + 1)];
+        Color[] colors = new Color[vertices.Length];
+
+        for (int z = 0, index = 0; z <= gridSizeY; z++)
+        {
+            for (int x = 0; x <= gridSizeX; x++, index++)
+            {
+                var noise = GetSampleFromNoise(x, z);
+                vertices[index] = new Vector3(x, noise * heightScale, z);
+                colors[index] = grad.Evaluate(GetSampleFromNoise(x, z));
+            }
+        }
+
+
+        mesh.vertices = vertices;
+        mesh.colors = colors;
+        CreateTriangles();
+        mesh.RecalculateNormals();
+    }
+
+    void CreateTriangles()
+    {
+        var triangles = new int[gridSizeX * gridSizeY * 6];
+
+        // ---------
+
+        //--------
+        for (int z = 0, triIndex = 0, vertIndex = 0; z < gridSizeY; z++, vertIndex++)
+        {
+            for (int x = 0; x < gridSizeX; x++, triIndex += 6, vertIndex++)
+            {
+                triangles[triIndex] = vertIndex;
+                triangles[triIndex + 1] = vertIndex + gridSizeX + 1;
+                triangles[triIndex + 2] = vertIndex + 1;
+
+                triangles[triIndex + 3] = vertIndex + 1;
+                triangles[triIndex + 4] = vertIndex + gridSizeX + 1;
+                triangles[triIndex + 5] = vertIndex + gridSizeX + 2;
+            }
+        }
+
+
+        mesh.triangles = triangles;
+        Debug.Log("Created Triangles");
     }
 
     #endregion

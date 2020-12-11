@@ -12,6 +12,7 @@ public class TextureCreator : MonoBehaviour
     public float frequency;
     private Texture2D texure;
 
+
     public Gradient coloring;
 
     private void OnEnable()
@@ -61,8 +62,8 @@ public class TextureCreator : MonoBehaviour
                 float sample = Noise.Layer2D(point, frequency, octaves);
                 // float sample = Noise.Perlin2D(point, freq);
                 sample = sample * .5f + .5f;
-                texure.SetPixel(x, y, Color.white * sample);
-                // texure.SetPixel(x, y, coloring.Evaluate(sample));
+                // texure.SetPixel(x, y, Color.white * sample);
+                texure.SetPixel(x, y, coloring.Evaluate(sample));
             }
         }
 
