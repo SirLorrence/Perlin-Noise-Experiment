@@ -7,8 +7,7 @@ public static class Noise
      * From Perlin noise wiki....im not writting all that out
      * https://en.wikipedia.org/wiki/Perlin_noise
      */
-    static int[] permutation =
-    {
+    static int[] permutation = {
         151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36,
         103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247, 120, 234, 75, 0,
         26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33, 88, 237, 149, 56,
@@ -42,15 +41,11 @@ public static class Noise
         157, 184, 84, 204, 176, 115, 121, 50, 45, 127, 4, 150, 254, 138, 236, 205,
         93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
     };
-
-    private const int hashMask = 255;
-    private const int gradientsMask1D = 1;
-    private const int gradientsMask2D = 7;
-
+    private const int HASH_MASK = 255;
+    private const int GRADIENTS_MASK_1D = 1;
+    private const int GRADIENTS_MASK_2D = 7;
     private static float[] gradients1D = {1f, -1f};
-
-    private static Vector2[] gradients2D =
-    {
+    private static Vector2[] gradients2D = {
         new Vector2(1f, 0f), // left
         new Vector2(-1f, 0f), // right
         new Vector2(0f, 1f), // up
@@ -61,22 +56,6 @@ public static class Noise
         new Vector2(1f, 1f).normalized,
         new Vector2(-1f, -1f).normalized,
     };
-
-    //why ken 
-    // private static Vector3[] gradients3D =
-    // {
-    //     new Vector3(1f, 1f, 0f),
-    //     new Vector3(-1f, 1f, 0f),
-    //     new Vector3(1f, -1f, 0f),
-    //     new Vector3(-1f, -1f, 0f),
-    //     
-    //     new Vector3(1f, 1f, 0f),
-    //     new Vector3(-1f, 1f, 0f),
-    //     new Vector3(1f, -1f, 0f),
-    //     new Vector3(-1f, -1f, 0f),
-    // }
-
-
     public static float Perlin(Vector3 point, float freq) // 1D -- only return the x in the point
     {
         //basic one-dimensional gradient function is g(x) = x
@@ -88,12 +67,12 @@ public static class Noise
         float t0 = point.x - i0;
 
         float t1 = t0 - 1f;
-        i0 &= hashMask; // & operator is a bitwise discards everything except the lease significantly bit 
+        i0 &= HASH_MASK; // & operator is a bitwise discards everything except the lease significantly bit 
 
         int i1 = i0 + 1;
 
-        int g0 = permutation[i0] & gradientsMask1D;
-        int g1 = permutation[i1] & gradientsMask1D;
+        int g0 = permutation[i0] & GRADIENTS_MASK_1D;
+        int g1 = permutation[i1] & GRADIENTS_MASK_1D;
 
         float v0 = g0 * t0;
         float v1 = g1 * t1;
@@ -116,19 +95,19 @@ public static class Noise
         float tx1 = tx0 - 1f;
         float ty1 = ty0 - 1f;
 
-        ix0 &= hashMask;
-        iy0 &= hashMask;
-
+        ix0 &= HASH_MASK;
+        iy0 &= HASH_MASK;
+        
         int ix1 = ix0 + 1;
         int iy1 = iy0 + 1;
 
-        int h0 = permutation[ix0];
-        int h1 = permutation[ix1];
+        int hash0 = permutation[ix0];
+        int hash1 = permutation[ix1];
 
-        Vector2 h00 = gradients2D[permutation[h0 + iy0] & gradientsMask2D];
-        Vector2 h10 = gradients2D[permutation[h1 + iy0] & gradientsMask2D];
-        Vector2 h01 = gradients2D[permutation[h0 + iy1] & gradientsMask2D];
-        Vector2 h11 = gradients2D[permutation[h1 + iy1] & gradientsMask2D];
+        Vector2 h00 = gradients2D[permutation[hash0 + iy0] & GRADIENTS_MASK_2D];
+        Vector2 h10 = gradients2D[permutation[hash1 + iy0] & GRADIENTS_MASK_2D];
+        Vector2 h01 = gradients2D[permutation[hash0 + iy1] & GRADIENTS_MASK_2D];
+        Vector2 h11 = gradients2D[permutation[hash1 + iy1] & GRADIENTS_MASK_2D];
 
         float v00 = Dot(h00, tx0, ty0);
         float v10 = Dot(h10, tx1, ty0);
@@ -138,36 +117,19 @@ public static class Noise
         float tx = Smooth(tx0);
         float ty = Smooth(ty0);
 
-        return Mathf.Lerp(Mathf.Lerp(v00, v10, tx), Mathf.Lerp(v01, v11, tx), ty) * Mathf.Sqrt(2f);
-        // r // returns 1 or 0 
+        return Mathf.Lerp(Mathf.Lerp(v00, v10, tx), Mathf.Lerp(v01, v11, tx), ty) * Mathf.Sqrt(2f); // returns 1 or 0 
     }
-
-    // public static float Perlin3D(Vector3 point, float frequency) // -_- guess
-    // {
-    //     point *= frequency;
-    //     int ix = Mathf.FloorToInt(point.x);
-    //     int iy = Mathf.FloorToInt(point.y);
-    //     int iz = Mathf.FloorToInt(point.z);
-    //     ix &= hashMask;
-    //     iy &= hashMask;
-    //     iz &= hashMask;
-    //     return permutation[permutation[permutation[ix] + iy] + iz] * (1f / hashMask); // returns 1 or 0 
-    // }
-
     // the DOT Product function
-    static float Dot(Vector2 g, float x, float y) => g.x * x + g.y * y;
+    static float Dot(Vector2 g, float x, float y)=>g.x * x + g.y * y;
 
-    public static float Smooth(float t) => t * t * t * (t * (t * 6f - 15) + 10);
+    public static float Smooth(float t)=>t * t * t * (t * (t * 6f - 15) + 10);
 
-
-    public static float Layer2D(Vector3 point, float freq, int octaves) // layers 
-    {
+    public static float Layer2D(Vector3 point, float freq, int octaves){
         float sum = Perlin2D(point, freq);
         float amplitude = 1f;
         float range = 1f;
 
-        for (int o = 1; o < octaves; o++)
-        {
+        for(int o = 1; o < octaves; o++){
             freq *= 2f;
             amplitude *= 0.5f;
             range += amplitude;

@@ -17,7 +17,6 @@ public class PerlinGen : MonoBehaviour
     public MeshRenderer testImage;
     public GameObject GamePrefab;
     public Gradient grad;
-
     public float freq;
     private Vector3[] vertices;
     private Mesh mesh;

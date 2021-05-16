@@ -44,12 +44,16 @@ public class TextureCreator : MonoBehaviour
     {
         if (texure.width != resolution) texure.Resize(resolution, resolution);
 
-        Vector3 point00 = transform.TransformPoint(new Vector3(-0.5f, -0.5f));
-        Vector3 point10 = transform.TransformPoint(new Vector3(0.5f, -0.5f));
-        Vector3 point01 = transform.TransformPoint(new Vector3(-0.5f, 0.5f));
-        Vector3 point11 = transform.TransformPoint(new Vector3(0.5f, 0.5f));
+        Vector3 point00 = transform.TransformPoint(new Vector3(-1f, -1f));
+        Vector3 point10 = transform.TransformPoint(new Vector3(1f, -1f));
+        Vector3 point01 = transform.TransformPoint(new Vector3(-1f, 1f));
+        Vector3 point11 = transform.TransformPoint(new Vector3(1f, 1f));
 
-        float stepSize = 1f / resolution;
+        // Vector3 point00 = transform.TransformPoint(new Vector3(-0.5f, -0.5f));
+        // Vector3 point10 = transform.TransformPoint(new Vector3(0.5f, -0.5f));
+        // Vector3 point01 = transform.TransformPoint(new Vector3(-0.5f, 0.5f));
+        // Vector3 point11 = transform.TransformPoint(new Vector3(0.5f, 0.5f));
+        float stepSize = 1f / resolution; // because of color changes (defind ina 0-1 range) 
 
 
         for (int y = 0; y < resolution; y++)
@@ -62,8 +66,8 @@ public class TextureCreator : MonoBehaviour
                 float sample = Noise.Layer2D(point, frequency, octaves);
                 // float sample = Noise.Perlin2D(point, freq);
                 sample = sample * .5f + .5f;
-                // texure.SetPixel(x, y, Color.white * sample);
-                texure.SetPixel(x, y, coloring.Evaluate(sample));
+                texure.SetPixel(x, y, Color.white * sample);
+                // texure.SetPixel(x, y, coloring.Evaluate(sample));
             }
         }
 
