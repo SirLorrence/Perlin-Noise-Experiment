@@ -44,7 +44,6 @@ public static class Noise
     private const int HASH_MASK = 255;
     private const int GRADIENTS_MASK_1D = 1;
     private const int GRADIENTS_MASK_2D = 7;
-    private static float[] gradients1D = {1f, -1f};
     private static Vector2[] gradients2D = {
         new Vector2(1f, 0f), // left
         new Vector2(-1f, 0f), // right
@@ -66,16 +65,18 @@ public static class Noise
         //interpolation
         float t0 = point.x - i0;
 
-        float t1 = t0 - 1f;
+        float rightGradient = t0 - 1f;
         i0 &= HASH_MASK; // & operator is a bitwise discards everything except the lease significantly bit 
 
         int i1 = i0 + 1;
 
+        //convert hash values int gradients
         int g0 = permutation[i0] & GRADIENTS_MASK_1D;
         int g1 = permutation[i1] & GRADIENTS_MASK_1D;
 
+        //compute values
         float v0 = g0 * t0;
-        float v1 = g1 * t1;
+        float v1 = g1 * rightGradient;
 
         float t = Smooth(t0);
 
@@ -104,6 +105,7 @@ public static class Noise
         int hash0 = permutation[ix0];
         int hash1 = permutation[ix1];
 
+        //compute the hash values
         Vector2 h00 = gradients2D[permutation[hash0 + iy0] & GRADIENTS_MASK_2D];
         Vector2 h10 = gradients2D[permutation[hash1 + iy0] & GRADIENTS_MASK_2D];
         Vector2 h01 = gradients2D[permutation[hash0 + iy1] & GRADIENTS_MASK_2D];
